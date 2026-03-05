@@ -12,11 +12,30 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Temu Clone',
-      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+      ),
       home: const MainNavigation(),
     );
   }
 }
+
+// --- MODELO DE DATOS PARA PRODUCTO ---
+class Product {
+  final String name, price, discount, imageUrl, desc;
+  const Product({
+    required this.name,
+    required this.price,
+    required this.discount,
+    required this.imageUrl,
+    required this.desc,
+  });
+}
+
+// --- ESTADO GLOBAL SENCILLO PARA EL CARRITO ---
+List<Product> cartItems = [];
 
 // --- NAVEGACIÓN PRINCIPAL ---
 class MainNavigation extends StatefulWidget {
@@ -29,12 +48,15 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = <Widget>[
-    ProductGridScreen(),
-    Center(child: Text('Categorías', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Promociones', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Perfil', style: TextStyle(fontSize: 24))),
-  ];
+  // Función para refrescar la UI cuando añadimos algo al carrito
+  void _updateUI() => setState(() {});
+
+  List<Widget> get _pages => [
+        ProductGridScreen(onAddToCart: _updateUI),
+        const CategoriesScreen(),
+        const CartScreen(), // Cambiamos Ofertas por el Carrito para que sea funcional
+        const ProfileScreen(),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,247 +67,106 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedItemColor: Colors.orange[900],
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+          const BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Categorías'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categorías',
+            icon: Stack(
+              children: [
+                const Icon(Icons.shopping_cart),
+                if (cartItems.isNotEmpty)
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(6)),
+                      constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
+                      child: Text(
+                        '${cartItems.length}',
+                        style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            label: 'Carrito',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_offer),
-            label: 'Ofertas',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tú'),
+          const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tú'),
         ],
       ),
     );
   }
 }
 
-// --- MODELO DE DATOS PARA PRODUCTO ---
-class Product {
-  final String name;
-  final String price;
-  final String discount;
-  final String imageUrl;
-  final String desc;
-
-  const Product({
-    required this.name,
-    required this.price,
-    required this.discount,
-    required this.imageUrl,
-    required this.desc,
-  });
-}
-
-// --- PANTALLA DE CATÁLOGO (GRID) ---
+// --- PANTALLA DE INICIO (PRODUCTOS) ---
 class ProductGridScreen extends StatelessWidget {
-  const ProductGridScreen({super.key});
+  final VoidCallback onAddToCart;
+  const ProductGridScreen({super.key, required this.onAddToCart});
 
   @override
   Widget build(BuildContext context) {
-    // Lista de Banners
     final List<String> banners = [
       "https://picsum.photos/id/1073/800/300",
       "https://picsum.photos/id/1080/800/300",
       "https://picsum.photos/id/102/800/300",
     ];
 
-    // Lista de Productos (La misma de antes)
     final List<Product> products = [
-      Product(
-        name: "Zapatos Deportivos Ultra",
-        price: "15.50",
-        discount: "60% dto.",
-        imageUrl: "https://picsum.photos/id/21/400/400",
-        desc: "Zapatos cómodos para correr.",
-      ),
-      Product(
-        name: "Reloj Inteligente Pro",
-        price: "12.99",
-        discount: "45% dto.",
-        imageUrl: "https://picsum.photos/id/20/400/400",
-        desc: "Monitorea tu salud.",
-      ),
-      Product(
-        name: "Audífonos Bluetooth",
-        price: "8.00",
-        discount: "30% dto.",
-        imageUrl: "https://picsum.photos/id/26/400/400",
-        desc: "Sonido envolvente.",
-      ),
-      Product(
-        name: "Cámara Vintage Pro",
-        price: "45.00",
-        discount: "10% dto.",
-        imageUrl: "https://picsum.photos/id/250/400/400",
-        desc: "Captura momentos retro.",
-      ),
+      Product(name: "Zapatos Deportivos Ultra", price: "15.50", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para correr."),
+      Product(name: "Reloj Inteligente Pro", price: "12.99", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud."),
+      Product(name: "Audífonos Bluetooth", price: "8.00", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente."),
+      Product(name: "Cámara Vintage Pro", price: "45.00", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos retro."),
     ];
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: const Text("Temu Clone", style: TextStyle(color: Colors.white)),
+        title: const Text("Temu Clone", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
-        // Permite que toda la pantalla haga scroll
         child: Column(
           children: [
-            // --- SECCIÓN DEL BANNER MEJORADA ---
-            Stack(
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: PageView.builder(
-                    itemCount: banners.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          image: DecorationImage(
-                            image: NetworkImage(banners[index]),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              colors: [
-                                Colors.orange.withOpacity(0.8),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "OFERTA RELÁMPAGO ⚡",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                Text(
-                                  "Termina en: 00:59:59",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+            // Banner
+            SizedBox(
+              height: 200,
+              child: PageView.builder(
+                itemCount: banners.length,
+                itemBuilder: (context, index) => Container(
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(image: NetworkImage(banners[index]), fit: BoxFit.cover),
                   ),
                 ),
-                // Puntos indicadores (Dots)
-                Positioned(
-                  bottom: 25,
-                  right: 30,
-                  child: Row(
-                    children: List.generate(
-                      banners.length,
-                      (index) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.white70,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-            // --- TÍTULO DE SECCIÓN ---
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Recomendados para ti",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
+              padding: EdgeInsets.all(15),
+              child: Align(alignment: Alignment.centerLeft, child: Text("Recomendados", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
             ),
-
-            // --- GRID DE PRODUCTOS ---
-            // Usamos GridView.count o builder con shrinkWrap para que funcione dentro de un ScrollView
             GridView.builder(
-              shrinkWrap: true, // Importante: evita conflictos de scroll
-              physics:
-                  const NeverScrollableScrollPhysics(), // El scroll lo maneja el SingleChildScrollView
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 10, mainAxisSpacing: 10),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final item = products[index];
-                return Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProductDetailScreen(product: item),
-                      ),
-                    ),
+                return InkWell(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(product: item, onAddToCart: onAddToCart))),
+                  child: Card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Image.network(
-                            item.imageUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
-                        ),
+                        Expanded(child: Image.network(item.imageUrl, fit: BoxFit.cover, width: double.infinity)),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                              ),
-                              Text(
-                                "\$${item.price}",
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                item.discount,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1),
+                              Text("\$${item.price}", style: const TextStyle(color: Colors.orange, fontSize: 16, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -302,88 +183,165 @@ class ProductGridScreen extends StatelessWidget {
   }
 }
 
-// --- PANTALLA DE DETALLE DEL PRODUCTO ---
-class ProductDetailScreen extends StatelessWidget {
-  final Product product;
-  const ProductDetailScreen({super.key, required this.product});
+// --- PANTALLA DE CATEGORÍAS ---
+class CategoriesScreen extends StatelessWidget {
+  const CategoriesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = [
+      {'name': 'Moda', 'icon': Icons.checkroom},
+      {'name': 'Hogar', 'icon': Icons.home_repair_service},
+      {'name': 'Electrónica', 'icon': Icons.devices},
+      {'name': 'Belleza', 'icon': Icons.face},
+      {'name': 'Juguetes', 'icon': Icons.toys},
+      {'name': 'Deportes', 'icon': Icons.sports_soccer},
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Categorías")),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(15),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 15, crossAxisSpacing: 15),
+        itemCount: categories.length,
+        itemBuilder: (context, index) => Column(
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.orange[100],
+              child: Icon(categories[index]['icon'] as IconData, color: Colors.orange[900]),
+            ),
+            const SizedBox(height: 5),
+            Text(categories[index]['name'] as String, style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --- PANTALLA DE PERFIL ---
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(product.name)),
+      appBar: AppBar(title: const Text("Mi Perfil")),
       body: Column(
         children: [
-          Image.network(
-            product.imageUrl,
-            height: 300,
-            width: double.infinity,
-            fit: BoxFit.cover,
+          const SizedBox(height: 20),
+          const CircleAvatar(radius: 50, backgroundColor: Colors.orange, child: Icon(Icons.person, size: 50, color: Colors.white)),
+          const SizedBox(height: 10),
+          const Text("Keissy Choconta", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Divider(height: 40),
+          ListTile(leading: const Icon(Icons.location_on), title: const Text("Dirección"), subtitle: const Text("Carrera felicidad # 27 - 12")),
+          ListTile(leading: const Icon(Icons.phone), title: const Text("Teléfono"), subtitle: const Text("3194059767")),
+          ListTile(leading: const Icon(Icons.email), title: const Text("Email"), subtitle: const Text("keissy@ejemplo.com")),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: OutlinedButton(onPressed: () {}, style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)), child: const Text("Cerrar Sesión")),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- PANTALLA DE CARRITO ---
+class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Carrito de Compras")),
+      body: cartItems.isEmpty
+          ? const Center(child: Text("Tu carrito está vacío"))
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) => ListTile(
+                      leading: Image.network(cartItems[index].imageUrl, width: 50),
+                      title: Text(cartItems[index].name),
+                      subtitle: Text("\$${cartItems[index].price}"),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => setState(() => cartItems.removeAt(index)),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("¡Compra Exitosa!"),
+                          content: const Text("Gracias por tu compra, Keissy. Tu pedido va en camino a Carrera felicidad."),
+                          actions: [TextButton(onPressed: () {
+                            setState(() => cartItems.clear());
+                            Navigator.pop(context);
+                          }, child: const Text("Aceptar"))],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 55)),
+                    child: const Text("REALIZAR PEDIDO", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ],
+            ),
+    );
+  }
+}
+
+// --- DETALLE DEL PRODUCTO (ACTUALIZADO) ---
+class ProductDetailScreen extends StatelessWidget {
+  final Product product;
+  final VoidCallback onAddToCart;
+  const ProductDetailScreen({super.key, required this.product, required this.onAddToCart});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Detalles")),
+      body: Column(
+        children: [
+          Image.network(product.imageUrl, height: 300, width: double.infinity, fit: BoxFit.cover),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(product.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text("\$${product.price}", style: const TextStyle(fontSize: 22, color: Colors.orange, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Text(
-                      "\$${product.price}",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      product.discount,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.red,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(product.desc, style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Acción para añadir al carrito
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${product.name} añadido al carrito!'),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      "Añadir al Carrito",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
+                Text(product.desc),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () {
+                    cartItems.add(product);
+                    onAddToCart();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Añadido al carrito")));
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
+                  child: const Text("AÑADIR AL CARRITO"),
+                )
               ],
             ),
-          ),
+          )
         ],
       ),
     );
