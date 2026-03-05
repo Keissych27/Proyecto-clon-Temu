@@ -113,10 +113,10 @@ class ProductGridScreen extends StatelessWidget {
     ];
 
     final List<Product> products = [
-      Product(name: "Zapatos Deportivos Ultra", price: "15.50", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para correr."),
-      Product(name: "Reloj Inteligente Pro", price: "12.99", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud."),
-      Product(name: "Audífonos Bluetooth", price: "8.00", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente."),
-      Product(name: "Cámara Vintage Pro", price: "45.00", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos retro."),
+      Product(name: "Tacones Blancos elegantes", price: "55.550", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para correr."),
+      Product(name: "Reloj Inteligente Pro", price: "15.000", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud."),
+      Product(name: "Audífonos Bluetooth", price: "80.000", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente."),
+      Product(name: "Cámara Vintage Pro", price: "450.000", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos retro."),
     ];
 
     return Scaffold(
