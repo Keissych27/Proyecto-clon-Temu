@@ -37,18 +37,18 @@ String selectedCategory = "Todos";
 
 // --- LISTA MAESTRA DE PRODUCTOS (OPCIÓN 3) ---
 const List<Product> allProducts = [
-  Product(category: "Moda", name: "Zapatos Deportivos Ultra", price: "15.50", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para correr."),
-  Product(category: "Electrónica", name: "Reloj Inteligente Pro", price: "12.99", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud y notificaciones."),
-  Product(category: "Electrónica", name: "Audífonos Bluetooth", price: "8.00", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente de alta calidad."),
-  Product(category: "Hogar", name: "Cámara Vintage Pro", price: "45.00", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos con estilo retro."),
-  Product(category: "Moda", name: "Chaqueta Térmica", price: "25.00", discount: "20% dto.", imageUrl: "https://picsum.photos/id/1059/400/400", desc: "Ideal para climas fríos."),
-  Product(category: "Hogar", name: "Lámpara de Escritorio", price: "10.50", discount: "15% dto.", imageUrl: "https://picsum.photos/id/1068/400/400", desc: "Iluminación LED ajustable."),
-  Product(category: "Belleza", name: "Set de Maquillaje", price: "18.99", discount: "50% dto.", imageUrl: "https://picsum.photos/id/1027/400/400", desc: "Completo set para profesionales."),
-  Product(category: "Deportes", name: "Balón de Fútbol", price: "12.00", discount: "5% dto.", imageUrl: "https://picsum.photos/id/1058/400/400", desc: "Tamaño oficial de competencia."),
-  Product(category: "Moda", name: "Gafas de Sol", price: "5.99", discount: "80% dto.", imageUrl: "https://picsum.photos/id/1067/400/400", desc: "Protección UV total."),
-  Product(category: "Electrónica", name: "Tablet Pro 10", price: "89.99", discount: "15% dto.", imageUrl: "https://picsum.photos/id/101/400/400", desc: "Pantalla retina de alta definición."),
-  Product(category: "Juguetes", name: "Oso de Peluche", price: "7.50", discount: "10% dto.", imageUrl: "https://picsum.photos/id/1084/400/400", desc: "Suave y antialérgico."),
-  Product(category: "Hogar", name: "Cafetera Express", price: "35.00", discount: "25% dto.", imageUrl: "https://picsum.photos/id/1060/400/400", desc: "Café perfecto en segundos."),
+  Product(category: "Moda", name: "Tacones Blancos Elegantes", price: "55.500", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para oficina."),
+  Product(category: "Electrónica", name: "Celular iphone 16 pro", price: "125.000", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud y notificaciones."),
+  Product(category: "Electrónica", name: "SET reloj, gafas, audifonos..", price: "180.00", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente de alta calidad."),
+  Product(category: "Hogar", name: "Cámara Vintage Pro", price: "450.000", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos con estilo retro."),
+  Product(category: "Moda", name: "Chaqueta Térmica vintage", price: "255.000", discount: "20% dto.", imageUrl: "https://picsum.photos/id/1059/400/400", desc: "Ideal para climas fríos."),
+  Product(category: "Hogar", name: "Lámpara de Escritorio", price: "100.550", discount: "15% dto.", imageUrl: "https://picsum.photos/id/1068/400/400", desc: "Iluminación LED ajustable."),
+  Product(category: "Belleza", name: "Set de Maquillaje", price: "25.000", discount: "50% dto.", imageUrl: "https://picsum.photos/id/1027/400/400", desc: "Completo set para profesionales."),
+  Product(category: "Deportes", name: "Tapete de Fútbol", price: "55.000", discount: "5% dto.", imageUrl: "https://picsum.photos/id/1058/400/400", desc: "Tamaño oficial de competencia."),
+  Product(category: "Moda", name: "Cuadro atardecer", price: "5.000", discount: "80% dto.", imageUrl: "https://picsum.photos/id/1067/400/400", desc: "Protección UV total."),
+  Product(category: "Electrónica", name: "Cuadro edificio de china", price: "89.990", discount: "15% dto.", imageUrl: "https://picsum.photos/id/101/400/400", desc: "Pantalla retina de alta definición."),
+  Product(category: "Juguetes", name: "Oso de Peluche realista", price: "75.500", discount: "10% dto.", imageUrl: "https://picsum.photos/id/1084/400/400", desc: "Suave y antialérgico."),
+  Product(category: "Hogar", name: "Cafetera Express", price: "35.000", discount: "25% dto.", imageUrl: "https://picsum.photos/id/1060/400/400", desc: "Café perfecto en segundos."),
 ];
 
 // --- NAVEGACIÓN PRINCIPAL ---
