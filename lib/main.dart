@@ -1,9 +1,47 @@
+import 'dart:async'; 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// --- 1. MODELO DE DATOS (DEBE IR ARRIBA) ---
+class Product {
+  final String name, price, discount, imageUrl, desc, category;
+  const Product({
+    required this.name, required this.price, required this.discount, 
+    required this.imageUrl, required this.desc, required this.category,
+  });
+}
+
+// --- 2. ESTADO GLOBAL ---
+List<Product> cartItems = [];
+String selectedCategory = "Todos";
+String nombreUsuarioActual = "Invitado"; 
+
+// --- 3. FUNCIÓN DE LA API ---
+Future<void> enviarPedidoAInternet(Product producto) async {
+  final String urlMockAPI = "https://69b35a09e224ec066bdbf818.mockapi.io/Pedidos";
+
+  try {
+    await http.post(
+      Uri.parse(urlMockAPI),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "Nombre": producto.name,
+        "Pedido": producto.name,
+        "Usuario": nombreUsuarioActual, 
+        "Fecha": DateTime.now().toString(),
+      }),
+    );
+  } catch (e) {
+    print("Error: $e");
+  }
+}
 
 void main() {
   runApp(const MyApp());
 }
 
+// --- 4. CONFIGURACIÓN DE LA APP ---
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,41 +55,79 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
       ),
-      home: const MainNavigation(),
+      home: const LoginScreen(), 
     );
   }
 }
 
-// --- MODELO DE DATOS MEJORADO ---
-class Product {
-  final String name, price, discount, imageUrl, desc, category;
-  const Product({
-    required this.name, required this.price, required this.discount, 
-    required this.imageUrl, required this.desc, required this.category,
-  });
+// --- 5. PANTALLA DE LOGIN ---
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-// --- ESTADO GLOBAL ---
-List<Product> cartItems = [];
-String selectedCategory = "Todos";
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _nameController = TextEditingController();
 
-// --- LISTA MAESTRA DE PRODUCTOS (OPCIÓN 3) ---
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.local_mall, size: 80, color: Colors.orange),
+              const SizedBox(height: 20),
+              const Text("¡Bienvenido a Temu Clone!", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 30),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: "Nombre completo",
+                  prefixIcon: const Icon(Icons.person, color: Colors.orange),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ElevatedButton(
+                onPressed: () {
+                  if (_nameController.text.isNotEmpty) {
+                    setState(() { nombreUsuarioActual = _nameController.text; });
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigation()));
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  minimumSize: const Size(double.infinity, 55),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+                child: const Text("INGRESAR", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// --- 6. LISTA DE PRODUCTOS ---
 const List<Product> allProducts = [
-  Product(category: "Moda", name: "Tacones Blancos Elegantes", price: "55.500", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para oficina."),
-  Product(category: "Electrónica", name: "Celular iphone 16 pro", price: "125.000", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Monitorea tu salud y notificaciones."),
-  Product(category: "Electrónica", name: "SET reloj, gafas, audifonos..", price: "180.00", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Sonido envolvente de alta calidad."),
-  Product(category: "Hogar", name: "Cámara Vintage Pro", price: "450.000", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos con estilo retro."),
-  Product(category: "Moda", name: "Chaqueta Térmica vintage", price: "255.000", discount: "20% dto.", imageUrl: "https://picsum.photos/id/1059/400/400", desc: "Ideal para climas fríos."),
-  Product(category: "Hogar", name: "Lámpara de Escritorio", price: "100.550", discount: "15% dto.", imageUrl: "https://picsum.photos/id/1068/400/400", desc: "Iluminación LED ajustable."),
-  Product(category: "Belleza", name: "Set de Maquillaje", price: "25.000", discount: "50% dto.", imageUrl: "https://picsum.photos/id/1027/400/400", desc: "Completo set para profesionales."),
-  Product(category: "Deportes", name: "Tapete de Fútbol", price: "55.000", discount: "5% dto.", imageUrl: "https://picsum.photos/id/1058/400/400", desc: "Tamaño oficial de competencia."),
-  Product(category: "Moda", name: "Cuadro atardecer", price: "5.000", discount: "80% dto.", imageUrl: "https://picsum.photos/id/1067/400/400", desc: "Protección UV total."),
-  Product(category: "Electrónica", name: "Cuadro edificio de china", price: "89.990", discount: "15% dto.", imageUrl: "https://picsum.photos/id/101/400/400", desc: "Pantalla retina de alta definición."),
-  Product(category: "Juguetes", name: "Oso de Peluche realista", price: "75.500", discount: "10% dto.", imageUrl: "https://picsum.photos/id/1084/400/400", desc: "Suave y antialérgico."),
-  Product(category: "Hogar", name: "Cafetera Express", price: "35.000", discount: "25% dto.", imageUrl: "https://picsum.photos/id/1060/400/400", desc: "Café perfecto en segundos."),
+  Product(category: "Moda", name: "Tacones Blancos Elegantes", price: "55500", discount: "60% dto.", imageUrl: "https://picsum.photos/id/21/400/400", desc: "Zapatos cómodos para oficina."),
+  Product(category: "Electrónica", name: "Celular iphone 16 pro", price: "1250000", discount: "45% dto.", imageUrl: "https://picsum.photos/id/20/400/400", desc: "Último modelo de alta gama."),
+  Product(category: "Electrónica", name: "SET reloj, gafas, audifonos..", price: "180000", discount: "30% dto.", imageUrl: "https://picsum.photos/id/26/400/400", desc: "Kit completo de accesorios."),
+  Product(category: "Hogar", name: "Cámara Vintage Pro", price: "450000", discount: "10% dto.", imageUrl: "https://picsum.photos/id/250/400/400", desc: "Captura momentos con estilo."),
+  Product(category: "Moda", name: "Chaqueta Térmica vintage", price: "255000", discount: "20% dto.", imageUrl: "https://picsum.photos/id/1059/400/400", desc: "Ideal para el frío de Bogotá."),
+  Product(category: "Hogar", name: "Lámpara de Escritorio", price: "100550", discount: "15% dto.", imageUrl: "https://picsum.photos/id/1068/400/400", desc: "Luz LED para estudiar."),
+  Product(category: "Belleza", name: "Set de Maquillaje", price: "25000", discount: "50% dto.", imageUrl: "https://picsum.photos/id/1027/400/400", desc: "Calidad profesional."),
+  Product(category: "Deportes", name: "Tapete de Fútbol", price: "55000", discount: "5% dto.", imageUrl: "https://picsum.photos/id/1058/400/400", desc: "Entrena en casa."),
 ];
 
-// --- NAVEGACIÓN PRINCIPAL ---
+// --- 7. NAVEGACIÓN Y PANTALLAS ---
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
   @override
@@ -68,10 +144,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: [
         ProductGridScreen(onAddToCart: _updateUI),
         CategoriesScreen(onCategorySelected: (cat) {
-          setState(() {
-            selectedCategory = cat;
-            _selectedIndex = 0; // Vuelve al inicio para ver los productos filtrados
-          });
+          setState(() { selectedCategory = cat; _selectedIndex = 0; });
         }),
         const CartScreen(),
         const ProfileScreen(),
@@ -85,11 +158,7 @@ class _MainNavigationState extends State<MainNavigation> {
           const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
           const BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Categorías'),
           BottomNavigationBarItem(
-            icon: Badge(
-              label: Text('${cartItems.length}'),
-              isLabelVisible: cartItems.isNotEmpty,
-              child: const Icon(Icons.shopping_cart),
-            ),
+            icon: Badge(label: Text('${cartItems.length}'), isLabelVisible: cartItems.isNotEmpty, child: const Icon(Icons.shopping_cart)),
             label: 'Carrito',
           ),
           const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tú'),
@@ -99,134 +168,31 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 }
 
-// --- PANTALLA DE INICIO CON ANIMACIONES (OPCIÓN 2) ---
-class ProductGridScreen extends StatelessWidget {
+class ProductGridScreen extends StatefulWidget {
   final VoidCallback onAddToCart;
   const ProductGridScreen({super.key, required this.onAddToCart});
+  @override
+  State<ProductGridScreen> createState() => _ProductGridScreenState();
+}
 
+class _ProductGridScreenState extends State<ProductGridScreen> {
   @override
   Widget build(BuildContext context) {
-    // Filtrar productos según la categoría seleccionada
-    final filteredProducts = selectedCategory == "Todos" 
-        ? allProducts 
-        : allProducts.where((p) => p.category == selectedCategory).toList();
-
+    final filtered = selectedCategory == "Todos" ? allProducts : allProducts.where((p) => p.category == selectedCategory).toList();
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.orange,
-        title: Text(selectedCategory == "Todos" ? "Temu Clone" : selectedCategory, 
-             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        actions: [
-          if (selectedCategory != "Todos")
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.white),
-              onPressed: () { (context as Element).markNeedsBuild(); selectedCategory = "Todos"; onAddToCart(); },
-            )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Banner (Solo se muestra en "Todos")
-            if (selectedCategory == "Todos")
-              SizedBox(
-                height: 180,
-                child: PageView(
-                  children: [
-                    _buildBanner("https://picsum.photos/id/1073/800/300", "REBAJAS DE MARZO"),
-                    _buildBanner("https://picsum.photos/id/1080/800/300", "ENVÍO GRATIS"),
-                  ],
-                ),
-              ),
-            
-            // Grid de productos con animación
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 10, mainAxisSpacing: 10),
-              itemCount: filteredProducts.length,
-              itemBuilder: (context, index) {
-                return AnimatedProductCard(
-                  product: filteredProducts[index], 
-                  index: index,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => ProductDetailScreen(product: filteredProducts[index], onAddToCart: onAddToCart))),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBanner(String url, String text) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
-      ),
-      child: Center(child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, backgroundColor: Colors.black26))),
-    );
-  }
-}
-
-// --- WIDGET DE TARJETA ANIMADA (OPCIÓN 2) ---
-class AnimatedProductCard extends StatefulWidget {
-  final Product product;
-  final int index;
-  final VoidCallback onTap;
-  const AnimatedProductCard({super.key, required this.product, required this.index, required this.onTap});
-
-  @override
-  State<AnimatedProductCard> createState() => _AnimatedProductCardState();
-}
-
-class _AnimatedProductCardState extends State<AnimatedProductCard> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 400 + (widget.index * 100)));
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _controller.forward();
-  }
-
-  @override
-  void dispose() { _controller.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: InkWell(
-          onTap: widget.onTap,
-          child: Card(
-            elevation: 2,
+      appBar: AppBar(backgroundColor: Colors.orange, title: const Text("Temu Clone Pro", style: TextStyle(color: Colors.white))),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(10),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 10, mainAxisSpacing: 10),
+        itemCount: filtered.length,
+        itemBuilder: (context, index) => Card(
+          child: InkWell(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(product: filtered[index], onAddToCart: widget.onAddToCart))),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(10)), child: Image.network(widget.product.imageUrl, fit: BoxFit.cover, width: double.infinity))),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(widget.product.name, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1),
-                      Text("\$${widget.product.price}", style: const TextStyle(color: Colors.orange, fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text(widget.product.discount, style: const TextStyle(color: Colors.red, fontSize: 12)),
-                    ],
-                  ),
-                ),
+                Expanded(child: Image.network(filtered[index].imageUrl, fit: BoxFit.cover)),
+                Text(filtered[index].name, maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text("\$${filtered[index].price}", style: const TextStyle(color: Colors.orange)),
               ],
             ),
           ),
@@ -236,65 +202,21 @@ class _AnimatedProductCardState extends State<AnimatedProductCard> with SingleTi
   }
 }
 
-// --- PANTALLA DE CATEGORÍAS ---
 class CategoriesScreen extends StatelessWidget {
   final Function(String) onCategorySelected;
   const CategoriesScreen({super.key, required this.onCategorySelected});
-
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      {'name': 'Moda', 'icon': Icons.checkroom},
-      {'name': 'Electrónica', 'icon': Icons.devices},
-      {'name': 'Hogar', 'icon': Icons.home_repair_service},
-      {'name': 'Belleza', 'icon': Icons.face},
-      {'name': 'Juguetes', 'icon': Icons.toys},
-      {'name': 'Deportes', 'icon': Icons.sports_soccer},
-    ];
-
+    final cats = ['Moda', 'Electrónica', 'Hogar', 'Belleza', 'Deportes', 'Todos'];
     return Scaffold(
-      appBar: AppBar(title: const Text("Explorar Categorías")),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(20),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5, mainAxisSpacing: 15, crossAxisSpacing: 15),
-        itemCount: categories.length,
-        itemBuilder: (context, index) => InkWell(
-          onTap: () => onCategorySelected(categories[index]['name'] as String),
-          child: Container(
-            decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.orange.withOpacity(0.2))),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(categories[index]['icon'] as IconData, size: 40, color: Colors.orange[800]),
-                Text(categories[index]['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
+      appBar: AppBar(title: const Text("Categorías")),
+      body: ListView.builder(
+        itemCount: cats.length,
+        itemBuilder: (context, i) => ListTile(
+          title: Text(cats[i]),
+          onTap: () => onCategorySelected(cats[i]),
+          trailing: const Icon(Icons.arrow_forward_ios),
         ),
-      ),
-    );
-  }
-}
-
-// --- PERFIL Y CARRITO (SE MANTIENEN IGUAL PERO MEJORADOS) ---
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Mi Perfil")),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          const CircleAvatar(radius: 50, backgroundColor: Colors.orange, child: Icon(Icons.person, size: 50, color: Colors.white)),
-          const SizedBox(height: 10),
-          const Text("Keissy Choconta", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const Divider(),
-          ListTile(leading: const Icon(Icons.location_on), title: const Text("Carrera felicidad # 27 - 12")),
-          ListTile(leading: const Icon(Icons.phone), title: const Text("3194059767")),
-          const Spacer(),
-          Padding(padding: const EdgeInsets.all(20), child: ElevatedButton(onPressed: (){}, child: const Text("Configuración"))),
-        ],
       ),
     );
   }
@@ -313,49 +235,121 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Mi Carrito")),
       body: cartItems.isEmpty 
-        ? const Center(child: Text("¡Está muy vacío! Agrega algo."))
+        ? const Center(child: Text("Carrito vacío"))
         : Column(
             children: [
-              Expanded(child: ListView.builder(itemCount: cartItems.length, itemBuilder: (context, i) => ListTile(
-                leading: Image.network(cartItems[i].imageUrl, width: 40),
-                title: Text(cartItems[i].name),
-                trailing: Text("\$${cartItems[i].price}"),
-              ))),
-              Container(padding: const EdgeInsets.all(20), color: Colors.grey[100], child: Column(children: [
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("Total:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), Text("\$${total.toStringAsFixed(2)}", style: const TextStyle(fontSize: 20))]),
-                const SizedBox(height: 10),
-                ElevatedButton(onPressed: (){ 
-                  setState(() => cartItems.clear());
-                  showDialog(context: context, builder: (c) => const AlertDialog(title: Text("Pedido Realizado"), content: Text("Keissy, tu pedido llegará pronto.")));
-                }, style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: const Size(double.infinity, 50)), child: const Text("COMPRAR AHORA", style: TextStyle(color: Colors.white)))
-              ]))
+              Expanded(child: ListView.builder(itemCount: cartItems.length, itemBuilder: (context, i) => ListTile(title: Text(cartItems[i].name), subtitle: Text("\$${cartItems[i].price}")))),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    for (var item in cartItems) { await enviarPedidoAInternet(item); }
+                    setState(() { cartItems.clear(); });
+                    showDialog(context: context, builder: (c) => const AlertDialog(title: Text("Éxito"), content: Text("Pedido guardado en MockAPI")));
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: const Size(double.infinity, 50)),
+                  child: Text("PAGAR \$${total.toStringAsFixed(0)}", style: const TextStyle(color: Colors.white)),
+                ),
+              )
             ],
           ),
     );
   }
 }
 
-class ProductDetailScreen extends StatelessWidget {
-  final Product product;
-  final VoidCallback onAddToCart;
-  const ProductDetailScreen({super.key, required this.product, required this.onAddToCart});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Detalle")),
-      body: ListView(children: [
-        Image.network(product.imageUrl, height: 350, fit: BoxFit.cover),
-        Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(product.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text("\$${product.price}", style: const TextStyle(fontSize: 22, color: Colors.orange, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 15),
-          Text(product.desc),
-          const SizedBox(height: 30),
-          ElevatedButton(onPressed: (){ cartItems.add(product); onAddToCart(); Navigator.pop(context); }, 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: const Size(double.infinity, 50)), child: const Text("AÑADIR AL CARRITO", style: TextStyle(color: Colors.white)))
-        ]))
-      ]),
+      appBar: AppBar(
+        title: const Text("Mi Perfil"),
+        actions: [
+          // BOTÓN PARA SALIR
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.red),
+            onPressed: () {
+              // Limpiamos los datos actuales
+              nombreUsuarioActual = "Invitado";
+              cartItems.clear();
+
+              // Regresamos a la pantalla de Login y borramos el historial de navegación
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.orange,
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              nombreUsuarioActual, // Aquí saldrá María o el que pongas
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const Text("Bogotá, Colombia", style: TextStyle(color: Colors.grey)),
+            const Divider(height: 40),
+            const ListTile(
+              leading: Icon(Icons.history),
+              title: Text("Mis Pedidos"),
+              trailing: Icon(Icons.arrow_forward_ios, size: 15),
+            ),
+            const ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Configuración"),
+              trailing: Icon(Icons.arrow_forward_ios, size: 15),
+            ),
+            const Spacer(),
+            Text("Temu Clone v1.0 - Proyecto Ingeniería", 
+              style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProductDetailScreen extends StatelessWidget {   
+  final Product product;
+  final VoidCallback onAddToCart;
+  const ProductDetailScreen({super.key, required this.product, required this.onAddToCart});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(product.name)),
+      body: Column(
+        children: [
+          Image.network(product.imageUrl, height: 300, width: double.infinity, fit: BoxFit.cover),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Text("\$${product.price}", style: const TextStyle(fontSize: 24, color: Colors.orange, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                Text(product.desc),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: () { cartItems.add(product); onAddToCart(); Navigator.pop(context); },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: const Size(double.infinity, 50)),
+                  child: const Text("AÑADIR AL CARRITO", style: TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
